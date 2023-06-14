@@ -1,0 +1,16 @@
+
+<h1>Your Team</h1>
+<div *ngFor="let name of yourTeam">
+    <p>{{name[0]}}</p>
+    <!-- <button (click) = "removeMonster(name)" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full">Remove</button> -->
+</div>
+<br>
+<h1>Enemy Team</h1>
+<div *ngFor="let name of defaultEnemy">
+    <p>{{name}}</p>
+    <!-- <button (click) = "removeMonster(name)" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full">Remove</button> -->
+</div>
+<br>
+<p>Begin Battle</p>
+
+<!-- Implement combat -->
