@@ -43,5 +43,10 @@ jobs:
           sudo ./aws/install
 
       - name: Deploy to S3 bucket
+        id: deploy
         run: |
           aws s3 sync dist/ s3://dd-colosseum-bucket
+          echo "Deployed to S3 bucket"
+
+      - name: Get Deployment Status
+        run: echo "Deployment status: ${{ job.status }}"
