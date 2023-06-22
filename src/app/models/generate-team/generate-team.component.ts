@@ -11,13 +11,19 @@ export class GenerateTeamComponent {
 
   monsterList: [string, string][] = []
 
+  filteredItems: [string, string][] = [];
+
   test: string = "";
 
   yourTeam: [string, string][] = [];
 
   safety: boolean = false;
 
-  constructor(private service: ServiceService) {}
+  searchQuery: string = '';
+
+  constructor(private service: ServiceService) {
+
+  }
 
   ngOnInit() {
     this.getDataFromApi();
@@ -26,6 +32,7 @@ export class GenerateTeamComponent {
   async getDataFromApi() {
     this.service.getMonsterList().subscribe((monsterList: [string, string][]) => {
       this.monsterList = monsterList;
+      this.filteredItems = monsterList
     });
   }
 
@@ -43,6 +50,12 @@ export class GenerateTeamComponent {
     if (this.safety == true) {
       this.safety = false;
     }
+  }
+
+  updateFilteredItems() {
+    this.filteredItems = this.monsterList.filter(monster =>
+      monster[0].toLowerCase().includes(this.searchQuery.toLowerCase())
+    );
   }
 
   ngOnDestroy() {

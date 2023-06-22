@@ -1,0 +1,36 @@
+<form [formGroup]="form" class="form-container">
+  <div class="form-field">
+    <label for="username" class="form-label">Username</label>
+    <input 
+    formControlName="username"
+    id="username" type="text" class="form-input" placeholder="Enter your username" formControlName="username">
+    <div *ngIf="f.username.touched && f.username.invalid" class="alert alert-danger">
+      <div *ngIf="f.username.errors?.['required']">Name is required.</div>
+      <div *ngIf="f.username.errors?.['minlength']">Name should be 3 character.</div>
+  </div>
+  </div>
+
+  <div class="form-field">
+    <label for="password" class="form-label">Password</label>
+    <input 
+    formControlName="password"
+    id="password" type="password" class="form-input" placeholder="Enter your password" formControlName="password">
+  </div>
+
+  <div class="form-field">
+    <label for="confirm-password" class="form-label">Confirm Password</label>
+    <input 
+    formControlName="confirm-password"
+    id="confirm-password" type="password" class="form-input" placeholder="Confirm your password" formControlName="confirmPassword">
+  </div>
+
+  <div class="form-field">
+    <label for="email" class="form-label">Email</label>
+    <input 
+    formControlName="email"
+    id="email" type="email" class="form-input" placeholder="Enter your email" formControlName="email">
+  </div>
+
+  <button (click)="onSubmit()" type="submit" class="form-button">Submit</button>
+  <button type="button" class="form-button" (click)="resetForm()">Reset</button>
+</form>
