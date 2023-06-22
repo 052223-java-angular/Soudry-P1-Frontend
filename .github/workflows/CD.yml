@@ -36,14 +36,8 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1  # Change this to your AWS region
 
-      - name: Install AWS CLI
-        run: |
-          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-          unzip awscliv2.zip
-          sudo ./aws/install
-
       - name: Deploy to S3 bucket
-        id: deploy
         run: |
           aws s3 sync dist/ s3://dd-colosseum-bucket
-          echo "Deployed to S3 bucket"
+          echo "AWS CLI exit code: $?"
+          aws s3 ls s3://dd-colosseum-bucket
