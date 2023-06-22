@@ -3,10 +3,9 @@ name: Deploy Angular App to S3 Bucket
 on:
   push:
     branches:
-    - main
-    - develop
-    - continuous-deployment
-
+      - main
+      - develop
+      - continuous-deployment
 
 jobs:
   deploy:
@@ -20,7 +19,7 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: 14
-          
+
       - name: Install Angular CLI
         run: npm install -g @angular/cli
 
@@ -37,5 +36,9 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1  # Change this to your AWS region
 
+      - name: Install and configure AWS CLI
+        uses: aws-actions/setup-aws-cli@v1
+
       - name: Deploy to S3 bucket
-        run: aws s3 sync dist/ s3://dd-colosseum-bucket
+        run: |
+          aws s3 sync dist/ s3://dd-colosseum-bucket
