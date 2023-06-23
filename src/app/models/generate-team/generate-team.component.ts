@@ -9,13 +9,13 @@ import { ServiceService } from 'src/app/services/service.service';
 })
 export class GenerateTeamComponent {
 
-  monsterList: [string, string][] = []
+  monsterList: [string, string, string][] = []
 
-  filteredItems: [string, string][] = [];
+  filteredItems: [string, string, string][] = [];
 
   test: string = "";
 
-  yourTeam: [string, string][] = [];
+  yourTeam: [string, string, string][] = [];
 
   safety: boolean = false;
 
@@ -26,17 +26,19 @@ export class GenerateTeamComponent {
   }
 
   ngOnInit() {
-    this.getDataFromApi();
+    console.log(sessionStorage.getItem("key"));
+    let key : any = sessionStorage.getItem("key");
+    this.getDataFromApi(key);
   }
 
-  async getDataFromApi() {
-    this.service.getMonsterList().subscribe((monsterList: [string, string][]) => {
+  async getDataFromApi(key : any) {
+    this.service.getMonsterList(key).subscribe((monsterList: [string, string, string][]) => {
       this.monsterList = monsterList;
       this.filteredItems = monsterList
     });
   }
 
-  record(value: [string, string]) {
+  record(value: [string, string, string]) {
     const length : number = this.yourTeam.length
     if (length < 3) {
       this.yourTeam[length] = value
@@ -44,7 +46,7 @@ export class GenerateTeamComponent {
       this.safety = true;
     }   
   }
-  removeMonster(value : [string, string]) {
+  removeMonster(value : [string, string, string]) {
     let valueToBeRemoved : number = this.yourTeam.indexOf(value);
     this.yourTeam.splice(valueToBeRemoved, 1);
     if (this.safety == true) {

@@ -4,6 +4,7 @@ import { Observable, map, of, forkJoin } from 'rxjs';
 import { Monsterdata } from '../interfaces/monsterdata';
 import { environment } from 'src/environments/environments';
 import { RegistrationObject } from '../interfaces/registration-object';
+import { Login } from '../interfaces/login';
 
 @Injectable({
   providedIn: 'root'
@@ -11,12 +12,27 @@ import { RegistrationObject } from '../interfaces/registration-object';
 export class ServiceService {
 
   private url = environment.backendUrl;
+  private url2 = environment.backendUrl2;
 
   constructor(private http: HttpClient) { }
 
-  login() {
-    return this.http.get(`url`)
+  // login(body : Login) {
+  //   return this.http.get(`${this.url2}auth/login`).subscribe(
+  //     (response: any) => {
+  //     console.log(response);  
+  //     }
+  //   )
+  // }
+
+  login(body: Login) {
+    return this.http.post(`${this.url}auth/login`, body).subscribe(
+      (response: any) => {
+        console.log(response);  
+        sessionStorage.setItem("key", response.token);
+      }
+    );
   }
+  
 
   register(body: RegistrationObject) {
     this.http.post(`${this.url}/auth/register`, body).subscribe(
@@ -26,12 +42,15 @@ export class ServiceService {
     )
   }
 
-  getMonsterList(): Observable<[string, string][]> {
-    return this.http.get(`${this.url}/monsters/all`).pipe(
+  getMonsterList(key : any): Observable<[string, string, string][]> {
+    const headers = {
+      "auth-token": key
+    };
+    return this.http.get(`${this.url}monsters/all`, {headers: headers}).pipe(
       map((value: any) => {
-        const monsterList: [string, string][] = [];
+        const monsterList: [string, string, string][] = [];
         for (let i = 0; i < value.results.length; i++) {
-          monsterList[i] = [value.results[i].name, value.results[i].index];
+          monsterList[i] = [value.results[i].name, value.results[i].index,  value.results[i].monsterType];
         }
         monsterList.length = 42;
         return monsterList;
