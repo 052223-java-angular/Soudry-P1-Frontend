@@ -1,16 +1,9 @@
 <input class="border-2" type="text" [(ngModel)]="searchQuery" placeholder="Search..." (input)="updateFilteredItems()"/>
 <div class="flex flex-wrap">
-    <!-- <div (click)="record(monstername)"  *ngFor="let monstername of filteredItems" class="flex justify-center items-center border-2 border-blue-400 rounded-full p-5 m-5 h-20">
-        <button 
-        class="w-40" >
-        <img src=`${this.url}monsters/all` alt="My Image">
-        {{monstername[0]}} {{monstername[2]}}
-    </button>
-    </div> -->
     <div (click)="record(monstername)" *ngFor="let monstername of filteredItems" class="flex justify-center items-center border-2 border-blue-400 rounded-full p-5 m-5 h-20">
         <button class="w-40">
             <img class="h-10" [src]="'assets/transparent/' + monstername[2] + '.png'" alt="My Image">
-            {{monstername[0]}} {{monstername[2]}}
+            {{monstername[0]}}
         </button>
     </div>
     
@@ -26,8 +19,22 @@
     <div *ngIf="safety == true">
         <p>Your team can have a maximum of 3 monsters. Please remove one to add another</p>
     </div> 
+
     <button [routerLink]="['/main']"  class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full" >Head Over to the next Route</button>
 </div>
 <ng-template #noTeam>
     <p class="text-center">Your Team is empty so far</p>
 </ng-template>
+
+<!-- <div *ngIf="safety == true"> -->
+    <p>Your team can have a maximum of 3 monsters. Please remove one to add another</p>
+ 
+<!-- </div>  -->
+<!-- <div  *ngIf="enemyOptions.length == 3"> -->
+    <h1> Choose your enemy Team</h1>
+    <div class="flex flex-wrap">
+        <div *ngFor="let name of enemyTeam">
+            <button (click) = "commitEnemyTeam(name)" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full">{{name[0][0]}}, {{name[1][0]}}, {{name[2][0]}}</button>
+        </div>
+    </div>
+<!-- </div> -->

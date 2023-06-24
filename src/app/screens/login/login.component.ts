@@ -10,6 +10,9 @@ import { Router } from '@angular/router';
   styleUrls: ['./login.component.css']
 })
 export class LoginComponent {
+  failure: boolean = false;
+  errorMessage : any
+
 
   constructor(private service: ServiceService, private router: Router) {}
 
@@ -32,8 +35,20 @@ onSubmit() {
       username: u,
       password: v,
      }
-    this.service.login(jsonObject);
-    this.router.navigateByUrl('/landing')
+    
+    this.service.login(jsonObject).subscribe(
+      {
+      next: (value : any) => {
+        sessionStorage.setItem("key", value.token);
+            this.router.navigateByUrl('/landing')
+          },
+          error: error => {
+            let e = error.error.message;
+            this.errorMessage = e;
+            this.failure = true;
+          }
+        }
+    );
   }
   }
 }

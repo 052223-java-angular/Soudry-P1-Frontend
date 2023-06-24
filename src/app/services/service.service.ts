@@ -16,33 +16,26 @@ export class ServiceService {
 
   constructor(private http: HttpClient) { }
 
-  // login(body : Login) {
-  //   return this.http.get(`${this.url2}auth/login`).subscribe(
-  //     (response: any) => {
-  //     console.log(response);  
-  //     }
-  //   )
-  // }
+
 
   login(body: Login) {
-    return this.http.post(`${this.url}auth/login`, body).subscribe(
-      (response: any) => {
-        console.log(response);  
-        sessionStorage.setItem("key", response.token);
-      }
-    );
+    return this.http.post(`${this.url}auth/login`, body);
+    
+ 
   }
   
 
   register(body: RegistrationObject) {
-    this.http.post(`${this.url}/auth/register`, body).subscribe(
-      (response: any) => {
-        console.log(response.status);
-      }
-    )
+   return this.http.post(`${this.url}auth/register`, body);
+    // .subscribe(
+    //   (response: any) => {
+    //     console.log(response.status);
+    //   }
+    // )
   }
 
-  getMonsterList(key : any): Observable<[string, string, string][]> {
+  getMonsterList(key : any): Observable<[[string, string, string][], [string, string, string][]]> {
+  // getMonsterList(key : any): Observable<[string, string, string][]> {
     const headers = {
       "auth-token": key
     };
@@ -52,31 +45,45 @@ export class ServiceService {
         for (let i = 0; i < value.results.length; i++) {
           monsterList[i] = [value.results[i].name, value.results[i].index,  value.results[i].monsterType];
         }
-        monsterList.length = 42;
-        return monsterList;
+        // monsterList.length = 42;
+
+
+        const firstArray: [string, string, string][] = monsterList.slice(0, 41);
+        // Create an array of the next 42 elements
+        const secondArray: [string, string, string][] = monsterList.slice(42, 51);
+
+        return [firstArray, secondArray];
+        // return monsterList;
       })
     );
   }
 
-  getTeamData(team1: [string, string][], team2: string[]) {
+  getTeamData(team1: [string, string, string][], team2: string[], jwt: string) {
+
+    const headers = {
+      "auth-token": jwt
+    };
+
     const yourTeamObservableList: Observable<any>[] = team1.map(
       tupleItem => {
+
         const key = tupleItem[1]
-        return this.http.get(`${this.url}/monsters/singleMonster?name=${key}`, {observe: 'body', responseType: 'json'} );
+
+        return this.http.get(`${this.url}monsters/singleMonster?name=${key}`, {observe: 'body', responseType: 'json', headers: headers} );
       })
       const enemyTeamObservableList: Observable<any>[] = team2.map(
         tupleItem => {
           const key = tupleItem
-          return this.http.get(`${this.url}/monsters/singleMonster?name=${key}`, {observe: 'body', responseType: 'json'} );
+          return this.http.get(`${this.url}monsters/singleMonster?name=${key}`, {observe: 'body', responseType: 'json', headers: headers} );
         })
         const fusedLists = [...yourTeamObservableList, ...enemyTeamObservableList];
         return forkJoin(fusedLists);
   }
 
-  getItemList() {
+  getItemList(token : string) {
     const headers = {
-      "auth-token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VybmFtZSIsImlkIjoiMjQzYWJmOGQtYWYwMS00M2FhLWEwMzctZTIyMDRlMTA3ZjU0IiwiZXhwIjoxNjg3MDc1OTgzLCJpYXQiOjE2ODcwMzk5ODN9.FCkPwN7bmxfNMMeA_1Ahvx5NF1nTej3ClavetZXYiLM"
+      "auth-token": token
     };
-    return this.http.get(`${this.url}/items/all`, { headers: headers });
+    return this.http.get(`${this.url}items/all`, { headers: headers });
   }
 }

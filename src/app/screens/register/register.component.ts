@@ -9,6 +9,9 @@ import { ServiceService } from 'src/app/services/service.service';
   styleUrls: ['./register.component.css']
 })
 export class RegisterComponent {
+  failure: boolean = false;
+  preSubmit: boolean = true;
+  errorMessage : any
 
   constructor(private service: ServiceService) {}
 
@@ -40,8 +43,33 @@ export class RegisterComponent {
       confirmPassword: m,
       email: p
      }
-    let object = this.service.register(jsonObject);
+
+    this.service.register(jsonObject).subscribe( 
+      {
+        next: (value : any) => {
+          this.preSubmit = false;
+            },
+            error: error => {
+              let e = error.error.message;
+                     console.log(e);
+              this.errorMessage = e;
+              this.failure = true;
+            }
+          }
+
+      ) 
+    }
   }
-  
+      // {
+      // next: (value : any) => {
+      //   sessionStorage.setItem("key", value.token);
+      // },
+      // error: error => {
+      //       let e = error.error.message;
+      //       console.log(e);
+      //       // this.errorMessage = e;
+      //       // this.failure = true;
+      //   }
+      // }
+    
   }
-}

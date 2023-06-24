@@ -16,7 +16,12 @@
       formControlName="password"
       id="password" type="password" class="form-input" placeholder="Enter your password" formControlName="password">
     </div>  
+    <div></div>
     <button (click)="onSubmit()" type="submit" class="form-button">Submit</button>
     <button [routerLink]="['/register']" class="form-button" > Meant to Register Click Here</button>
+
+    <div *ngIf="failure">
+     <p> You have a {{errorMessage}}</p>
+    </div>
   </form>
   

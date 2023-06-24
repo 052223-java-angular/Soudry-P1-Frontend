@@ -1,5 +1,6 @@
 export interface Item {
-    itemBonus: string;
+    id: string;
+    itemBonus: number;
     itemDescription: string;
     itemName: string;
     itemType: string;

@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
 import { Monsterdata } from 'src/app/interfaces/monsterdata';
 import { Item } from 'src/app/interfaces/item';
-import { ItemList } from 'src/app/interfaces/item-list';
 import { ServiceService } from 'src/app/services/service.service';
 import { Router } from '@angular/router';
 
@@ -13,9 +12,12 @@ import { Router } from '@angular/router';
 export class FightComponent {
 
   constructor(private service: ServiceService, private router: Router) {}
-  // item: ItemList = [];
+
+  battleChoice : String = "preChoice"
+
+  availableItems : Item[] = [];
   battleStatus: string = "preCombat";
-  yourTeam: [string, string][] = [];
+  yourTeam: [string, string, string][] = [];
   defaultEnemy: string[] = ["death-dog","giant-hyena", "glabrezu"];
   t1: Monsterdata[] = [];
   t2: Monsterdata[] = [];
@@ -147,32 +149,32 @@ export class FightComponent {
 
   yourMonsterHealth: number = 0;
   enemyMonsterHealth: number = 0;
+
+  yourAc: number = 0;
+  enemyAc: number = 0;
   
+  profBonus: number = 0;
   ngOnInit() {
-    const token : string | null = sessionStorage.getItem("yourTeam");
+    const token : any = sessionStorage.getItem("yourTeam");
+    const enemy : any = sessionStorage.getItem("enemyTeam")
+    const jwt : string | null = sessionStorage.getItem("key");
     if (token) {
-      let tokenArray: string[] = token.split(",");
-      let c = 0;
-      for(let i = 0; i < 3; i++) {
-        if (c != 0) {
-          c++;
-        }
-        this.yourTeam[i] = [tokenArray[c], tokenArray[c+1]]
-        c++;
-      }
+    this.yourTeam = JSON.parse(token);
     }
-    this.grabMonsterDataByName(this.yourTeam, this.defaultEnemy);
-  //   this.service.getItemList().subscribe({
-  //     next: (value) => {
-  //       this.item = value.item
-  //       console.log(this.item)
-  //   },
-  //   error: error => {
-  //     console.error(error)
-  //     // Handle the error response
-  //     // TODO: Add code for handling error response
-  //   }
-  // })
+
+
+    let value : any = JSON.parse(enemy);
+    
+    this.defaultEnemy = [value[0][1], value[1][1], value[2][1]]
+
+    if (jwt) {
+      this.grabMonsterDataByName(this.yourTeam, this.defaultEnemy, jwt);
+      this.service.getItemList(jwt).subscribe((value : any) => {
+        for (let i = 0; i < value.item.length; i++) {
+          this.availableItems[i] = value.item[i];
+        }
+      })
+    }
 }
   setTeams(value: any) {
     this.t1[0] = value[0];
@@ -186,33 +188,37 @@ export class FightComponent {
     if (type === "you") {
       this.You = data.name;
       this.yourCurrentMonster = data;
+      this.yourAc = parseInt(this.yourCurrentMonster.armor_class[0].value)
+ 
+    
       this.yourActions = this.processActions(this.yourCurrentMonster.actions);
-      console.log(this.yourActions);
+      this.calculateProfBonus(this.yourActions[0])
     } else {
       this.Enemy = data.name;
       this.yourEnemyMonster = data;     
       this.enemyActions = this.processActions(this.yourEnemyMonster.actions);
-      console.log(this.enemyActions);
+      this.enemyAc = parseInt(this.yourEnemyMonster.armor_class[0].value)
+      console.log(this.enemyAc);
+      
     }
   }
+  // Starts combat 
   battleTime() {
     this.battleStatus = "Combat"
+    this.currentBattleRecord.push("Combat Begins");
     const youGoFirst: boolean = this.determineSpeed()
     this.yourMonsterHealth = this.yourCurrentMonster.hit_points;
     this.enemyMonsterHealth = this.yourEnemyMonster.hit_points;
-
-    let record : string = `Combat Begins`
-    this.currentBattleRecord.push(record);
+  
     if (!youGoFirst) {
-      let record : string = `${this.yourEnemyMonster.name} outspeeds ${this.yourCurrentMonster.name} and goes first.`
-      this.currentBattleRecord.push(record);
+      this.currentBattleRecord.push(`${this.yourEnemyMonster.name} outspeeds ${this.yourCurrentMonster.name} and goes first.`);
         this.combatCalculation(null, false);
     } else {
-      `${this.yourCurrentMonster.name}  out speeds ${this.yourEnemyMonster.name}.`
-      this.currentBattleRecord.push(record);
+      this.currentBattleRecord.push(  `${this.yourCurrentMonster.name}  out speeds ${this.yourEnemyMonster.name}. Your monster makes the first move.`);
     }
   }
 
+  // code that checks if attack hits or not.
   combatCalculation(actions: any | null , turn: Boolean) {
     if (turn) {
       if (this.determineIfHits(actions[1], true)) {
@@ -223,12 +229,7 @@ export class FightComponent {
       }
     }
    if (this.enemyMonsterHealth > 0) {
-      // let attackChosen: number = this.getRandomInt( this.enemyActions[0].length - 1);
       let attackChosen: number = this.getRandomInt( this.enemyActions.length - 1);
-      // console.log(this.enemyActions[0].length - 1)
-      // console.log(attackChosen)
-      // console.log(this.enemyActions)
-      // console.log(this.enemyActions[attackChosen])
       let enemyChoice = this.enemyActions[attackChosen]
        if (this.determineIfHits(enemyChoice[1], false)) {
         let damage : number = this.calculateDamage(enemyChoice[2])
@@ -242,6 +243,7 @@ export class FightComponent {
   processActions(actions: any) {
     let queriedActions: [string, string, string[]][] = [];
     actions.forEach((element: any) => {
+      
       if (element.damage != null) {
         queriedActions.push([element.name, element.desc, element.damage]);
       }
@@ -249,17 +251,45 @@ export class FightComponent {
     return queriedActions;
   }
 
+  calculateProfBonus(action : any) {
+console.log(action[1]);
+const numberRegex: RegExp = /\d+/;
+const match: RegExpMatchArray | null = action[1].match(numberRegex);
+if (match)
+console.log(match[0]);
+if (match)
+ this.profBonus = parseInt(match[0]) - this.yourCurrentMonster.strength;
+ console.log(this.yourCurrentMonster.strength);
+ console.log(this.profBonus);
+  }
+// determine who goes first
   determineSpeed() {
     const numberRegex: RegExp = /\d+/;
     const speed1: string = this.yourCurrentMonster.speed.walk;
     const speed2: string = this.yourEnemyMonster.speed.walk;
     const match: RegExpMatchArray | null = speed1.match(numberRegex);
     const match2: RegExpMatchArray | null = speed2.match(numberRegex);
-    if ( match != null && match2 != null && match[0] > match2[0]) {
-            return true;
-    } else {
-      return false;
+
+    let roll : number = this.diceRolls(1, 20, null);
+    let roll2 : number = this.diceRolls(1, 20, null);
+
+    if (match != null && match2 != null) {
+      let yourFullSpeed : number = parseInt(match[0], 10) + roll
+      let enemyFullSpeed : number =   parseInt(match2[0], 10) + roll2
+
+      this.currentBattleRecord.push(`${this.yourCurrentMonster.name} and ${this.yourEnemyMonster.name} rolls for  inititive`);
+
+      this.currentBattleRecord.push(`${this.yourCurrentMonster.name} rolls a ${roll} which with a natural speed of ${speed1} gives a max speed of ${yourFullSpeed} `);
+  
+      this.currentBattleRecord.push(`${this.yourEnemyMonster.name} rolls a ${roll2} which with a natural speed of ${speed2} gives a max speed of ${enemyFullSpeed}`);
+
+      if (yourFullSpeed > enemyFullSpeed) {
+        return true;
+      } else {
+        false
+      }
     }
+    return false;
   }
 
   determineIfHits(stringToProcess: string, value: Boolean) {
@@ -267,26 +297,33 @@ export class FightComponent {
     const match: RegExpMatchArray | null = stringToProcess.match(numberRegex);
     if (match != null) {
       let diceRollResult = this.diceRolls(1, 20, parseInt(match[0]))
-      // console.log("Rolled a : " + diceRollResult)
+      
       if (value) {
-        let AC = parseInt(this.yourEnemyMonster.armor_class[0].value);
-        console.log("Your enemy AC is:" + AC)
-        if (AC < diceRollResult ) {
-          console.log("You should hit");
+        let total : number = this.profBonus + this.yourCurrentMonster.strength 
+        console.log(this.profBonus);
+        console.log(this.yourCurrentMonster.strength)
+        console.log(total);
+        let yourDiceRoll = this.diceRolls(1, 20, total)
+        this.currentBattleRecord.push(`${this.yourCurrentMonster.name} makes a attack roll, rolling a ${yourDiceRoll}`)
+        let AC = this.enemyAc
+    
+        if (AC < yourDiceRoll ) {
+          this.currentBattleRecord.push(`${this.yourEnemyMonster.name} has a Ac of ${AC}, so the attack hits.`)
           return true;
         } else {
-          // console.log("You Missed");
+          this.currentBattleRecord.push(`${this.yourEnemyMonster.name} has a Ac of ${AC}, so the attack misses.`)
           false;
         }
 
       } else {
-      let AC = parseInt(this.yourCurrentMonster.armor_class[0].value);
-      // console.log("Your AC is:" + AC)
+        this.currentBattleRecord.push(`${this.yourEnemyMonster.name} makes a attack roll, rolling a ${diceRollResult}`)
+      let AC = this.yourAc
+    
       if (AC < diceRollResult ) {
-        // console.log("Enemy hits");
+        this.currentBattleRecord.push(`${this.yourCurrentMonster.name} has a Ac of ${AC}, so the attack hits.`)
         return true;
       } else {
-        // console.log("Enemy Misses");
+        this.currentBattleRecord.push(`${this.yourCurrentMonster.name} has a Ac of ${AC}, so the attack misses.`)
         false;
       }
     }
@@ -297,7 +334,7 @@ export class FightComponent {
   addToBattleRecord(damage: number | null, user: boolean) {
     if (user) {
       if (damage != null) {
-        let record : string = `${this.yourCurrentMonster.name} attacks ${this.yourEnemyMonster.name} dealing ${damage} damage to it.`
+        let record : string = `${this.yourEnemyMonster.name} takes ${damage} damage.`
         this.currentBattleRecord.push(record);
         this.enemyMonsterHealth -= damage
         if (this.enemyMonsterHealth <= 0) {
@@ -305,8 +342,8 @@ export class FightComponent {
           this.currentBattleRecord.push(record);
         }
       } else {
-        let record : string = `${this.yourCurrentMonster.name}  attempts to attack ${this.yourEnemyMonster.name} but fails.`
-        this.currentBattleRecord.push(record);
+        // let record : string = `${this.yourCurrentMonster.name}  attempts to attack ${this.yourEnemyMonster.name} but fails.`
+        // this.currentBattleRecord.push(record);
       }
     } else {
       if (damage != null) {
@@ -343,28 +380,27 @@ export class FightComponent {
           if(match != null) {
             const numberOfRolls = parseInt(match[0], 10);
             const diceType = parseInt(match[1], 10);
-            // console.log(numberOfRolls)
-            // console.log(diceType)
+           
             if (diceData.length > 1) {
               const match2 = diceData[1].match(/\d+/g);
               if(match2 != null) {
                 const extraDamage = parseInt(match2[0], 10);
-                console.log(extraDamage);
+             
                 damage += this.diceRolls(numberOfRolls, diceType, extraDamage)
-                console.log(damage + " damage");
+               
               }
             } else {
               damage += this.diceRolls(numberOfRolls, diceType, null)
-              console.log(damage + " damage");
+          
             }
           }
     }
-    console.log("Final Damage from the round is : " + damage)
+  
     return damage;
   }
 
   diceRolls(times: number, dice: number, rollModifier: number | null) {
-    console.log("You are rolling " + times + "d" + dice + " + " + rollModifier)
+   
     let number = 0
     if (rollModifier != null) {
       for (let i = 0; i < times; i++) {
@@ -375,7 +411,7 @@ export class FightComponent {
           number += (safe + 1)
         }
       }
-      console.log(number);
+      
       number += rollModifier;
     } else {
       for (let i = 0; i < times; i++) {
@@ -386,7 +422,7 @@ export class FightComponent {
           number += (safe + 1)
         }
       }
-      console.log(number);
+      
     }
     return number;
   }
@@ -398,7 +434,7 @@ export class FightComponent {
   cleanUp(value: boolean) {
     //  clean the combat slate
     this.battleReport.push(this.currentBattleRecord);
-    console.log(this.battleReport);
+   
     this.currentBattleRecord = [];
 
     if (this.yourMonsterHealth <= 0) {
@@ -421,16 +457,39 @@ export class FightComponent {
 
     if (value) {
       this.router.navigateByUrl(`/landing`)
-      console.log("click")
+     
     } else {
       this.battleStatus = "preCombat"
     }
    
   }
 
-  async grabMonsterDataByName(team1: [string, string][], team2: string[]) {
-    this.service.getTeamData(team1, team2).subscribe((value : any) => {
+  async grabMonsterDataByName(team1: [string, string, string][], team2: string[], jwt: string) {
+    this.service.getTeamData(team1, team2, jwt).subscribe((value : any) => {
       this.setTeams(value)
     })
+  }
+
+  useItem(item: Item) {
+if (item.itemType == "atk-boost-all") {
+console.log("boost");
+this.currentBattleRecord.push(`You use the ${item.itemName} on your  ${this.yourCurrentMonster.name} boosting it's strength and it's proficiency bonus by ${item.itemBonus}`)
+} else if (item.itemType == "ac-lower") {
+  console.log(this.enemyAc);
+  this.enemyAc = this.enemyAc - item.itemBonus
+  this.currentBattleRecord.push(`You use the ${item.itemName} on ${this.yourEnemyMonster.name} decreasing its Armor class by ${item.itemBonus}`)
+} else if (item.itemType == "restore-health") {
+  console.log("healing!!!");
+  this.yourMonsterHealth = this.yourMonsterHealth + item.itemBonus
+  this.currentBattleRecord.push(`You use the ${item.itemName} on your  ${this.yourCurrentMonster.name} restoring its health by ${item.itemBonus}`)
+
+} else if (item.itemType == "health-lower") {
+  console.log("poison!");
+  this.enemyMonsterHealth = this.enemyMonsterHealth - item.itemBonus
+  this.currentBattleRecord.push(`You use the ${item.itemName} on ${this.yourEnemyMonster.name} decreasing its health by ${item.itemBonus}`)
+  
+}
+this.availableItems = this.availableItems.filter((element) => element !== item);
+
   }
 }

@@ -1,4 +1,5 @@
 <form [formGroup]="form" class="form-container">
+  <div *ngIf="preSubmit else SuccessfulSubmit">
   <div class="form-field">
     <label for="username" class="form-label">Username</label>
     <input 
@@ -31,7 +32,19 @@
     id="email" type="email" class="form-input" placeholder="Enter your email" formControlName="email">
   </div>
 
+
+  <div *ngIf="failure">
+    <p> You have a {{errorMessage}}</p>
+   </div>
+
   <button (click)="onSubmit()" type="submit" class="form-button">Submit</button>
   <button type="button" class="form-button" (click)="resetForm()">Reset</button>
   <button type="button" [routerLink]="['/login']" class="form-button"  > Meant to Login? Click Here Instead</button>
+  </div>
+  <ng-template #SuccessfulSubmit>
+    <p>
+      You successfully Registered
+    </p>
+    <button type="button" [routerLink]="['/login']" class="form-button"  > Click Here to move to Login</button>
+  </ng-template>
 </form>

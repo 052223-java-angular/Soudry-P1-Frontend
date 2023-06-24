@@ -14,6 +14,7 @@ import { LoginComponent } from './screens/login/login.component';
 import { RegisterComponent } from './screens/register/register.component';
 import { NotfoundComponent } from './screens/notfound/notfound.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { CombatAnimationComponent } from './models/combat-animation/combat-animation.component';
 
 
 @NgModule({
@@ -26,7 +27,8 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
     TutorialComponent,
     LoginComponent,
     RegisterComponent,
-    NotfoundComponent
+    NotfoundComponent,
+    CombatAnimationComponent
   ],
   imports: [
     BrowserModule,

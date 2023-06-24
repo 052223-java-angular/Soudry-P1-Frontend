@@ -11,11 +11,20 @@ export class GenerateTeamComponent {
 
   monsterList: [string, string, string][] = []
 
+  enemyOptions: [string, string, string][] = []
+
+  nestedTuple: [string, string, 
+    string, string, 
+    string, string,
+  ][] = [];
+
   filteredItems: [string, string, string][] = [];
 
   test: string = "";
 
   yourTeam: [string, string, string][] = [];
+
+  enemyTeam: any[] = [];
 
   safety: boolean = false;
 
@@ -26,22 +35,38 @@ export class GenerateTeamComponent {
   }
 
   ngOnInit() {
-    console.log(sessionStorage.getItem("key"));
     let key : any = sessionStorage.getItem("key");
     this.getDataFromApi(key);
   }
 
   async getDataFromApi(key : any) {
-    this.service.getMonsterList(key).subscribe((monsterList: [string, string, string][]) => {
-      this.monsterList = monsterList;
-      this.filteredItems = monsterList
+    this.service.getMonsterList(key).subscribe((monsterList: [[string, string, string][], [string, string, string][]]) => {
+      this.monsterList = monsterList[0];
+      this.filteredItems = monsterList[0]
+      this.enemyOptions = monsterList[1];
+      this.generateEnemyTeam(this.enemyOptions);
+      console.log(this.enemyOptions);
     });
+  }
+
+  async generateEnemyTeam(team: [string, string, string][]) {
+    for (let i = 0; i < 9;) {
+  
+        let v = i + 1;
+        let b = v + 1;
+  
+      this.enemyTeam.push([[team[i][0], team[i][1]], [team[v][0], team[v][1]], [team[b][0], team[b][1]]])
+      i = i + 3;
+    }
+   console.log(this.enemyTeam);
+
   }
 
   record(value: [string, string, string]) {
     const length : number = this.yourTeam.length
     if (length < 3) {
       this.yourTeam[length] = value
+      console.log(this.yourTeam);
     } else {
       this.safety = true;
     }   
@@ -60,7 +85,16 @@ export class GenerateTeamComponent {
     );
   }
 
+  generateRandomTeams() {
+  console.log("Hello");
+  }
+
+  commitEnemyTeam(value : any) {
+    sessionStorage.setItem("enemyTeam", JSON.stringify(value))
+
+  }
+
   ngOnDestroy() {
-    sessionStorage.setItem("yourTeam", this.yourTeam.toString())
+    sessionStorage.setItem("yourTeam", JSON.stringify(this.yourTeam))
   }
 }
