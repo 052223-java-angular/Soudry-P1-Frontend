@@ -91,7 +91,11 @@ export class GenerateTeamComponent {
 
   commitEnemyTeam(value : any) {
     sessionStorage.setItem("enemyTeam", JSON.stringify(value))
+  }
 
+  matchmaking() {
+   let value : number = Math.floor(Math.random() * 2);
+    this.commitEnemyTeam(this.enemyTeam[value])
   }
 
   ngOnDestroy() {

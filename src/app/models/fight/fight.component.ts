@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild, ElementRef } from '@angular/core';
 import { Monsterdata } from 'src/app/interfaces/monsterdata';
 import { Item } from 'src/app/interfaces/item';
 import { ServiceService } from 'src/app/services/service.service';
@@ -21,8 +21,12 @@ export class FightComponent {
   defaultEnemy: string[] = ["death-dog","giant-hyena", "glabrezu"];
   t1: Monsterdata[] = [];
   t2: Monsterdata[] = [];
+
   battleReport : String[][] = [];
   currentBattleRecord: String[]  = [];
+  battleReview :string[] = [];
+
+
   You: String = "Your Monster(Please select a monster)";
   Enemy: String = "Your Oponent(Please select a monster)";
   yourCurrentMonster: Monsterdata = {
@@ -154,6 +158,10 @@ export class FightComponent {
   enemyAc: number = 0;
   
   profBonus: number = 0;
+
+  counter: number = 1;
+
+  review : boolean = false;
   ngOnInit() {
     const token : any = sessionStorage.getItem("yourTeam");
     const enemy : any = sessionStorage.getItem("enemyTeam")
@@ -176,6 +184,23 @@ export class FightComponent {
       })
     }
 }
+
+
+@ViewChild('listContainer') listContainer!: ElementRef;
+
+
+ngAfterViewChecked() {
+  this.scrollToBottom();
+}
+
+scrollToBottom(): void {
+  try {
+    this.listContainer.nativeElement.scrollTop = this.listContainer.nativeElement.scrollHeight;
+  } catch (err) {
+    console.error(err);
+  }
+}
+
   setTeams(value: any) {
     this.t1[0] = value[0];
     this.t1[1] = value[1];
@@ -198,7 +223,7 @@ export class FightComponent {
       this.yourEnemyMonster = data;     
       this.enemyActions = this.processActions(this.yourEnemyMonster.actions);
       this.enemyAc = parseInt(this.yourEnemyMonster.armor_class[0].value)
-      console.log(this.enemyAc);
+     
       
     }
   }
@@ -210,23 +235,36 @@ export class FightComponent {
     this.yourMonsterHealth = this.yourCurrentMonster.hit_points;
     this.enemyMonsterHealth = this.yourEnemyMonster.hit_points;
   
+ 
     if (!youGoFirst) {
       this.currentBattleRecord.push(`${this.yourEnemyMonster.name} outspeeds ${this.yourCurrentMonster.name} and goes first.`);
-        this.combatCalculation(null, false);
+      this.currentBattleRecord.push(`Turn ${this,this.counter}`)
+        this.combatCalculation(null, false, true);
+        // this.checkHealth()
     } else {
       this.currentBattleRecord.push(  `${this.yourCurrentMonster.name}  out speeds ${this.yourEnemyMonster.name}. Your monster makes the first move.`);
+      // this.currentBattleRecord.push(`Turn ${this,this.counter}`)
     }
   }
 
   // code that checks if attack hits or not.
-  combatCalculation(actions: any | null , turn: Boolean) {
+  combatCalculation(actions: any | null , turn: Boolean, enemyFirst: Boolean) {
     if (turn) {
+      if (!enemyFirst) {
+        this.currentBattleRecord.push(`Turn ${this,this.counter}`)
+        this.counter++
+      }
+
+
       if (this.determineIfHits(actions[1], true)) {
       let damage : number = this.calculateDamage(actions[2])
       this.addToBattleRecord(damage, true)
       } else {
         this.addToBattleRecord(null, true)
       }
+     
+     
+     
     }
    if (this.enemyMonsterHealth > 0) {
       let attackChosen: number = this.getRandomInt( this.enemyActions.length - 1);
@@ -252,15 +290,14 @@ export class FightComponent {
   }
 
   calculateProfBonus(action : any) {
-console.log(action[1]);
+
 const numberRegex: RegExp = /\d+/;
 const match: RegExpMatchArray | null = action[1].match(numberRegex);
 if (match)
-console.log(match[0]);
+
 if (match)
  this.profBonus = parseInt(match[0]) - this.yourCurrentMonster.strength;
- console.log(this.yourCurrentMonster.strength);
- console.log(this.profBonus);
+
   }
 // determine who goes first
   determineSpeed() {
@@ -300,9 +337,6 @@ if (match)
       
       if (value) {
         let total : number = this.profBonus + this.yourCurrentMonster.strength 
-        console.log(this.profBonus);
-        console.log(this.yourCurrentMonster.strength)
-        console.log(total);
         let yourDiceRoll = this.diceRolls(1, 20, total)
         this.currentBattleRecord.push(`${this.yourCurrentMonster.name} makes a attack roll, rolling a ${yourDiceRoll}`)
         let AC = this.enemyAc
@@ -341,10 +375,7 @@ if (match)
           let record : string = `${this.yourEnemyMonster.name} succumbs to it's wounds.`
           this.currentBattleRecord.push(record);
         }
-      } else {
-        // let record : string = `${this.yourCurrentMonster.name}  attempts to attack ${this.yourEnemyMonster.name} but fails.`
-        // this.currentBattleRecord.push(record);
-      }
+      } 
     } else {
       if (damage != null) {
         let record : string = `${this.yourEnemyMonster.name} attacks ${this.yourCurrentMonster.name} dealing ${damage} damage to it.`
@@ -354,21 +385,45 @@ if (match)
           let record : string = `${this.yourCurrentMonster.name} succumbs to it's wounds.`
           this.currentBattleRecord.push(record);
         }
-      } else {
-        let record : string = `${this.yourEnemyMonster.name}  attempts to attack ${this.yourCurrentMonster.name} but fails.`
-        this.currentBattleRecord.push(record);
-      }
+      } 
     }
-    if (this.yourMonsterHealth <= 0 || this.enemyMonsterHealth <= 0 ) {
+   this.checkHealth();
+  }
+
+  checkHealth() {
+    if (this.yourMonsterHealth <= 0 ) {
       let record : string = `Round over`
       this.currentBattleRecord.push(record);
-
-      if (this.enemyMonsterHealth <= 0 && this.t2.length == 1) {
-        this.battleStatus = "Victory"
-      } else {
-        this.battleStatus = "PostCombat"
+      if (this.t1.length == 1 ) {
+        this.battleStatus = "Defeat"
+      } 
+      else {
+        this.battleStatus = 'PostCombat'
       }
+      let remainingHp: number = this.yourEnemyMonster.hit_points - this.enemyMonsterHealth
      
+
+      let val : string = `${this.yourEnemyMonster.name} has slain ${this.yourCurrentMonster.name}. Combat took ${this.counter} rounds.`
+      let val2 : string = `${this.yourEnemyMonster.name} took ${remainingHp} damage.`
+      this.battleReview.push(val)
+      this.battleReview.push(val2)
+
+    } else if (this.enemyMonsterHealth <= 0) {
+      let record : string = `Round over`
+      this.currentBattleRecord.push(record);
+      if (this.t2.length == 1 ) {
+        this.battleStatus = "Victory"
+      } 
+      else {
+        this.battleStatus = 'PostCombat'
+      }
+
+      let remainingHp: number = this.yourCurrentMonster.hit_points - this.yourMonsterHealth
+      let val : string = `${this.yourCurrentMonster.name} has slain ${this.yourEnemyMonster.name}. Combat took ${this.counter} rounds.`
+      let val2 : string = `${this.yourCurrentMonster.name} took ${remainingHp} damage.`
+
+      this.battleReview.push(val)
+      this.battleReview.push(val2)
     }
   }
 
@@ -431,11 +486,32 @@ if (match)
     return Math.floor(Math.random() * max);
   }
 
+  cleanUpForViewing() {
+    this.battleReport.push(this.battleReview);
+    this.currentBattleRecord = [];
+    this.battleReview = [];
+
+    if (this.yourMonsterHealth <= 0) {
+      let number = this.t1.indexOf(this.yourCurrentMonster);
+      this.t1.splice(number, 1);
+
+    } else {
+      let number = this.t2.indexOf(this.yourEnemyMonster);
+      this.t2.splice(number, 1);
+    }
+    this. You = "Your Monster(Please select a monster)";
+    this. Enemy = "Your Oponent(Please select a monster)";
+  
+    this.battleStatus = "Recap"
+    this.counter = 1;
+  }
+
   cleanUp(value: boolean) {
     //  clean the combat slate
-    this.battleReport.push(this.currentBattleRecord);
-   
+    this.battleReport.push(this.battleReview);
+     console.log(this.battleReport)
     this.currentBattleRecord = [];
+    this.battleReview = [];
 
     if (this.yourMonsterHealth <= 0) {
       let number = this.t1.indexOf(this.yourCurrentMonster);
@@ -461,6 +537,8 @@ if (match)
     } else {
       this.battleStatus = "preCombat"
     }
+
+    this.counter = 1;
    
   }
 
@@ -472,19 +550,19 @@ if (match)
 
   useItem(item: Item) {
 if (item.itemType == "atk-boost-all") {
-console.log("boost");
+
 this.currentBattleRecord.push(`You use the ${item.itemName} on your  ${this.yourCurrentMonster.name} boosting it's strength and it's proficiency bonus by ${item.itemBonus}`)
 } else if (item.itemType == "ac-lower") {
-  console.log(this.enemyAc);
+ 
   this.enemyAc = this.enemyAc - item.itemBonus
   this.currentBattleRecord.push(`You use the ${item.itemName} on ${this.yourEnemyMonster.name} decreasing its Armor class by ${item.itemBonus}`)
 } else if (item.itemType == "restore-health") {
-  console.log("healing!!!");
+  
   this.yourMonsterHealth = this.yourMonsterHealth + item.itemBonus
   this.currentBattleRecord.push(`You use the ${item.itemName} on your  ${this.yourCurrentMonster.name} restoring its health by ${item.itemBonus}`)
 
 } else if (item.itemType == "health-lower") {
-  console.log("poison!");
+  
   this.enemyMonsterHealth = this.enemyMonsterHealth - item.itemBonus
   this.currentBattleRecord.push(`You use the ${item.itemName} on ${this.yourEnemyMonster.name} decreasing its health by ${item.itemBonus}`)
   

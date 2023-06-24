@@ -3,73 +3,100 @@
         <h1>Your Team</h1>
         <div class="flex flex-wrap">
             <div *ngFor="let team of t1">
-                <p (click)="prepareData(team, 'you')" class="flex justify-center items-center border-2 border-blue-400 rounded-full p-5 m-5 h-20">{{team.name}}</p>
+                <p (click)="prepareData(team, 'you')" class="button">{{team.name}}</p>
             </div>
         </div>  
         <h1>Your Opponent</h1>
         <div class="flex flex-wrap">
             <div *ngFor="let team of t2">
-                <p (click)="prepareData(team, 'enemy')"  class="flex justify-center items-center border-2 border-blue-400 rounded-full p-5 m-5 h-20">{{team.name}}</p>
+                <p (click)="prepareData(team, 'enemy')"  class="button">{{team.name}}</p>
             </div>
         </div>
         <h1> {{You}}  vs {{Enemy}}</h1>
-        <button class="flex justify-center items-center border-2 border-red-400 rounded-full p-5 m-5 h-20" (click)="battleTime()" > Begin Combat</button>
+        <button class="button2" (click)="battleTime()" > Begin Combat</button>
     </div>
     <div  *ngSwitchCase="'Combat'">
         <app-combat-animation [yourMonster]="yourCurrentMonster" [enemyMonster]="yourEnemyMonster" ></app-combat-animation>
-        <div class="border-2 border-red-400 text-center list-container h-list-container overflow-y-auto">
+        <div #listContainer  class="    border-2 border-red-400 text-center list-container h-64 overflow-y-auto">
             <div *ngFor="let battle of currentBattleRecord">
                 <p>{{battle}}</p>
             </div>
         </div>
-
 
         <div [ngSwitch]="battleChoice" >
             <div  *ngSwitchCase="'preChoice'">
-                <button class="flex justify-center items-center border-2 border-red-400 rounded-full p-5 m-5 h-20" (click)="battleChoice='moves'"> Attack with a action</button>
-                <button class="flex justify-center items-center border-2 border-red-400 rounded-full p-5 m-5 h-20" (click)="battleChoice='items'"> Use a Item</button>
+                <button class="button2" (click)="battleChoice='moves'"> Attack with a action</button>
+                <button class="button2" (click)="battleChoice='items'"> Use a Item</button>
             </div>
             <div  *ngSwitchCase="'moves'">
                 <div *ngFor="let actions of yourActions">
-                    <p (click)="combatCalculation(actions, true)" class="flex justify-center items-center border-2 border-red-400 rounded-full p-5 m-5 h-20"  >{{actions[0]}}</p>
+                    <p (click)="combatCalculation(actions, true, false)" class="button2"  >{{actions[0]}}</p>
                 </div>
-                <p (click)="battleChoice='moves'" class="flex justify-center items-center border-2 border-red-400 rounded-full p-5 m-5 h-20" > Use a item first</p>
+                <p (click)="battleChoice='moves'" class="button2" > Use a item first</p>
             </div>
             <div  *ngSwitchCase="'items'">
                 <div *ngFor="let items of availableItems">
-                    <p (click)="useItem(items)" class="flex justify-center items-center border-2 border-red-400 rounded-full p-5 m-5 h-20"  > Use {{items.itemName}} x 1</p>
+                    <p (click)="useItem(items)" class="button2"  > Use {{items.itemName}} x 1</p>
                 </div>
-                <p (click)="battleChoice='moves'" class="flex justify-center items-center border-2 border-red-400 rounded-full p-5 m-5 h-20" > Attack instead</p>
+                <p (click)="battleChoice='moves'" class="button2" > Attack instead</p>
             </div>
-
         </div>
-            
-       <!-- <div *ngFor="let actions of yourActions">
-            <p (click)="combatCalculation(actions, true)" class="flex justify-center items-center border-2 border-red-400 rounded-full p-5 m-5 h-20"  >{{actions[0]}}</p>
-        </div> -->
-
     </div>
     <div  *ngSwitchCase="'PostCombat'">
-        <div class="border-2 border-red-400 text-center overflow-y-aut">
-            <h1> Your Combat Record</h1>
-            <div *ngFor="let battle of currentBattleRecord">
-                <p>{{battle}}</p>
+            <div *ngIf="review == true else record ">
+                <div  #listContainer class="    border-2 border-red-400 text-center list-container h-64 overflow-y-auto">
+                    <h1> Your Combat Review</h1>
+                    <div *ngFor="let battle of battleReview">
+                        <p>{{battle}}</p>
+                    </div>
+                </div>
+                <button class="button3" (click)="review=false" >See your record</button>
             </div>
-  
-        </div>
-        <button (click)="cleanUp(false)"  >Continue Combat</button>
-        <button>Retreat</button>
+            <ng-template #record>
+                <h1> Your Combat Record</h1>
+                <div  #listContainer class=" border-2 border-red-400 text-center list-container h-64 overflow-y-auto">
+                    <div *ngFor="let battle of currentBattleRecord">
+                        <p>{{battle}}</p>
+                    </div>
+                </div>
+                <button class="button3" (click)="review=true" >See your review</button>
+            </ng-template>
+        <button class="button3" (click)="cleanUp(false)">Continue onto the Next Round</button>
+        <button [routerLink]="['/landing']" class="button3">Return to Team Selection</button>
     </div>
     <div  *ngSwitchCase="'Victory'">
-        <div class="border-2 border-red-400 text-center overflow-y-aut">
+        <div  #listContainer class="    border-2 border-red-400 text-center list-container h-64 overflow-y-auto">
             <h1> Your Combat Record</h1>
             <div *ngFor="let battle of currentBattleRecord">
                 <p>{{battle}}</p>
             </div>
-  
         </div>
-        <h1> Congratulations on Winning the round. Good Job!!!</h1>
+        <h1> Congratulations on Winning the match. Good Job!!!</h1>
+        <button (click)="cleanUpForViewing()" > Click here if you want a recap</button>
         <button (click)="cleanUp(true)" > Proceed</button>
-        <!-- <button>Retreat</button> -->
+    </div>
+    <div  *ngSwitchCase="'Defeat'">
+        <div  #listContainer class="    border-2 border-red-400 text-center list-container h-64 overflow-y-auto">
+            <h1> Your Combat Record</h1>
+            <div *ngFor="let battle of currentBattleRecord">
+                <p>{{battle}}</p>
+            </div>
+        </div>
+        <h1> Unfortunately you lost the match</h1>
+        <button (click)="cleanUpForViewing()" > Click here if you want a recap</button>
+        <button (click)="cleanUp(true)" > Go back to select another Team</button>
+    </div>
+    <div  *ngSwitchCase="'Recap'">
+        <div >
+            <h1> Your Recap</h1>
+            <div  class="border-2 border-red-400 text-center list-container h-64 overflow-y-auto" *ngFor="let battle of battleReport; let i = index">
+                <p>Round {{i + 1}}</p>
+                <p>{{battle}}</p>
+                <!-- <div *ngFor="let ba of battle">
+                    <p>{{ba}}</p>
+                </div> -->
+            </div>
+        </div>
+        <button (click)="cleanUp(true)" > Go back to select another Team</button>
     </div>
 </div>
