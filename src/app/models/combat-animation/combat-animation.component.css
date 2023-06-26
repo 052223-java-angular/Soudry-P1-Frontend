@@ -1,0 +1,13 @@
+.shift-animation {
+    animation: shiftUpDown 1s infinite alternate;
+  }
+  
+  @keyframes shiftUpDown {
+    from {
+      transform: translateY(0);
+    }
+    to {
+      transform: translateY(-10px);
+    }
+  }
+  

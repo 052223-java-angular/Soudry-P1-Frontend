@@ -1,0 +1,29 @@
+<div class="flex flex-row justify-center items-center h-screen">
+    <div>
+        <h1 class="text-6xl"> How to Play</h1>
+        <div class="border-4 border-black border-solid p-4">
+            <div c>
+                <h2> 1. First make a account or log into a existing account .</h2>
+                <h2> 2. A list of monster cards will be generated. Click on 3 of the cards to create your team..</h2>
+                <h2> 3. Pick your enemy team, or click random team to have one picked for you.</h2>
+                <h2> 4. Click Fight to begin Combat.</h2>
+                <h2 class="text-center"> Combat Rules</h2>
+                <h2> 1. Choose a monster from your team to fight with and pick a enemy monster to fight.</h2>
+                <h2> 2. The monsters will automatically roll inititive. If you roll higher and faster you go first. </h2>
+                <h2> 3. If you are faster you may make attack. If the enemy is faster, they immediatly attack. </h2>
+                <h3> 4. When it's your turn, you may use a item, or you may make a attack.</h3>
+                <h3> 5. Items can heal, damage, buff and debuff debuff, but you may only use each item once.</h3>
+                <h3> 6. If you attack, the monster will roll to hit. If it rolls higher than the enemy Armor class, you deal damage.</h3>
+                <h3> 7. Your monster will trade blows with the enemy until one of them has their health reduced to 0.</h3>
+                <h3> 8. Upon hitting 0, the round ends and the dead monster is removed from play .</h3>
+                <h3> 9. The match continues until you or the enemy has all their monsters slain.</h3>
+                <h3> 10. Good Luck and have fun.</h3>
+            </div>
+
+            <div  class="flex flex-col space-y-4 m-2">
+                <button [routerLink]="['/register']" class="primary" > Ready to play? Click here to Register a Account</button>
+                <button [routerLink]="['/login']" class="secondary"  > Or click here if you already have a account</button>
+            </div>
+        </div>  
+    </div>
+</div>
