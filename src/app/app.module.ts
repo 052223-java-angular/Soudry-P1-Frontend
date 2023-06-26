@@ -15,6 +15,8 @@ import { RegisterComponent } from './screens/register/register.component';
 import { NotfoundComponent } from './screens/notfound/notfound.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CombatAnimationComponent } from './models/combat-animation/combat-animation.component';
+import { LandingComponent } from './screens/landing/landing.component';
+import {RouterModule} from '@angular/router'
 
 
 @NgModule({
@@ -28,14 +30,16 @@ import { CombatAnimationComponent } from './models/combat-animation/combat-anima
     LoginComponent,
     RegisterComponent,
     NotfoundComponent,
-    CombatAnimationComponent
+    CombatAnimationComponent,
+    LandingComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     HttpClientModule,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    RouterModule.forRoot([]),
   ],
   providers: [HttpClient],
   bootstrap: [AppComponent]

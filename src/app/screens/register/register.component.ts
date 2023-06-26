@@ -16,11 +16,14 @@ export class RegisterComponent {
   constructor(private service: ServiceService) {}
 
   form = new FormGroup({
-    username: new FormControl('', [Validators.required, Validators.minLength(3)]),
+    username: new FormControl('', [Validators.required, Validators.minLength(8), Validators.maxLength(20)]),
     email: new FormControl('', [Validators.required, Validators.email]),
-    password: new FormControl('', Validators.required),
+    password: new FormControl('', [Validators.required, Validators.minLength(8)]),
     confirmPassword: new FormControl('', Validators.required)
   });
+
+
+ 
 
   get f(){
     return this.form.controls;

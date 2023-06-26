@@ -13,6 +13,8 @@ export class FightComponent {
 
   constructor(private service: ServiceService, private router: Router) {}
 
+  safety: boolean = false;
+
   battleChoice : String = "preChoice"
 
   availableItems : Item[] = [];
@@ -27,8 +29,8 @@ export class FightComponent {
   battleReview :string[] = [];
 
 
-  You: String = "Your Monster(Please select a monster)";
-  Enemy: String = "Your Oponent(Please select a monster)";
+  You: String = "Your Monster";
+  Enemy: String = "Your Opponent";
   yourCurrentMonster: Monsterdata = {
     name: "",
     size: "",
@@ -161,6 +163,8 @@ export class FightComponent {
 
   counter: number = 1;
 
+ 
+
   review : boolean = false;
   ngOnInit() {
     const token : any = sessionStorage.getItem("yourTeam");
@@ -169,6 +173,8 @@ export class FightComponent {
     if (token) {
     this.yourTeam = JSON.parse(token);
     }
+
+    
 
 
     let value : any = JSON.parse(enemy);
@@ -229,22 +235,28 @@ scrollToBottom(): void {
   }
   // Starts combat 
   battleTime() {
-    this.battleStatus = "Combat"
-    this.currentBattleRecord.push("Combat Begins");
-    const youGoFirst: boolean = this.determineSpeed()
-    this.yourMonsterHealth = this.yourCurrentMonster.hit_points;
-    this.enemyMonsterHealth = this.yourEnemyMonster.hit_points;
-  
- 
-    if (!youGoFirst) {
-      this.currentBattleRecord.push(`${this.yourEnemyMonster.name} outspeeds ${this.yourCurrentMonster.name} and goes first.`);
-      this.currentBattleRecord.push(`Turn ${this,this.counter}`)
-        this.combatCalculation(null, false, true);
-        // this.checkHealth()
+    if (this.You !="Your Monster" && this.Enemy != "Your Opponent" ) {
+      this.battleStatus = "Combat"
+      this.currentBattleRecord.push("Combat Begins");
+      const youGoFirst: boolean = this.determineSpeed()
+      this.yourMonsterHealth = this.yourCurrentMonster.hit_points;
+      this.enemyMonsterHealth = this.yourEnemyMonster.hit_points;
+    
+   
+      if (!youGoFirst) {
+        this.currentBattleRecord.push(`${this.yourEnemyMonster.name} outspeeds ${this.yourCurrentMonster.name} and goes first.`);
+        this.currentBattleRecord.push(`Turn ${this,this.counter}`)
+          this.combatCalculation(null, false, true);
+          // this.checkHealth()
+      } else {
+        this.currentBattleRecord.push(  `${this.yourCurrentMonster.name}  out speeds ${this.yourEnemyMonster.name}. Your monster makes the first move.`);
+        // this.currentBattleRecord.push(`Turn ${this,this.counter}`)
+      }
+      this.safety = false;
     } else {
-      this.currentBattleRecord.push(  `${this.yourCurrentMonster.name}  out speeds ${this.yourEnemyMonster.name}. Your monster makes the first move.`);
-      // this.currentBattleRecord.push(`Turn ${this,this.counter}`)
+      this.safety = true;
     }
+   
   }
 
   // code that checks if attack hits or not.
@@ -276,6 +288,20 @@ scrollToBottom(): void {
         this.addToBattleRecord(null, false)
        }
    }
+  }
+
+  struggle() {
+    this.currentBattleRecord.push(`${this.yourCurrentMonster.name} attempts to attack ${this.yourEnemyMonster.name} but fails miserable.`)
+
+    let attackChosen: number = this.getRandomInt( this.enemyActions.length - 1);
+    let enemyChoice = this.enemyActions[attackChosen]
+     if (this.determineIfHits(enemyChoice[1], false)) {
+      let damage : number = this.calculateDamage(enemyChoice[2])
+      this.addToBattleRecord(damage, false)
+     } else {
+      this.addToBattleRecord(null, false)
+     }
+
   }
 
   processActions(actions: any) {
@@ -499,8 +525,8 @@ if (match)
       let number = this.t2.indexOf(this.yourEnemyMonster);
       this.t2.splice(number, 1);
     }
-    this. You = "Your Monster(Please select a monster)";
-    this. Enemy = "Your Oponent(Please select a monster)";
+    this. You = "Your Monster";
+    this. Enemy = "Your Opponent";
   
     this.battleStatus = "Recap"
     this.counter = 1;
@@ -526,8 +552,8 @@ if (match)
 
     // persist Monster
 
-    this. You = "Your Monster(Please select a monster)";
-    this. Enemy = "Your Oponent(Please select a monster)";
+    this. You = "Your Monster";
+    this. Enemy = "Your Opponent";
 
     //  return to front
 
@@ -541,6 +567,9 @@ if (match)
     this.counter = 1;
    
   }
+
+
+
 
   async grabMonsterDataByName(team1: [string, string, string][], team2: string[], jwt: string) {
     this.service.getTeamData(team1, team2, jwt).subscribe((value : any) => {

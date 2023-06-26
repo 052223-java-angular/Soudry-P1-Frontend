@@ -6,6 +6,7 @@ import { NotfoundComponent } from './screens/notfound/notfound.component';
 import { TutorialComponent } from './screens/tutorial/tutorial.component';
 import { LoginComponent } from './screens/login/login.component';
 import { RegisterComponent } from './screens/register/register.component';
+import { LandingComponent } from './screens/landing/landing.component';
 
 const routes: Routes = [
 
@@ -13,7 +14,8 @@ const routes: Routes = [
   {path: 'landing', component:StartupComponent},
   {path: 'login', component:LoginComponent},
   {path: 'register', component:RegisterComponent},
-  {path: "", component:TutorialComponent},
+  {path: "tutorial", component:TutorialComponent},
+  {path: "", component:LandingComponent},
   {path: '**', component:NotfoundComponent}
 ];
 

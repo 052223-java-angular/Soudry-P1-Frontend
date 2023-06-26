@@ -1,3 +1,4 @@
+<div class="flex flex-row justify-center items-center h-screen">
 <form [formGroup]="form" class="form-container">
     <div class="form-field">
       <label for="username" class="form-label">Username</label>
@@ -16,12 +17,15 @@
       formControlName="password"
       id="password" type="password" class="form-input" placeholder="Enter your password" formControlName="password">
     </div>  
-    <div></div>
-    <button (click)="onSubmit()" type="submit" class="form-button">Submit</button>
-    <button [routerLink]="['/register']" class="form-button" > Meant to Register Click Here</button>
+    <div class="flex flex-col space-y-4 m-2">
+      <button (click)="onSubmit()" type="submit" class="primary">Submit</button>
+      <button [routerLink]="['/register']" class="secondary" > Meant to Register Click Here</button>
+    </div>
+
 
     <div *ngIf="failure">
      <p> You have a {{errorMessage}}</p>
     </div>
   </form>
+  </div>
   

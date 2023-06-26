@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { ServiceService } from 'src/app/services/service.service';
-// import { Router } from '@angular/router';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-generate-team',
@@ -9,7 +9,9 @@ import { ServiceService } from 'src/app/services/service.service';
 })
 export class GenerateTeamComponent {
 
-  monsterList: [string, string, string][] = []
+  ready = false 
+
+  monsterList: [string, string, string, boolean][] = []
 
   enemyOptions: [string, string, string][] = []
 
@@ -18,11 +20,11 @@ export class GenerateTeamComponent {
     string, string,
   ][] = [];
 
-  filteredItems: [string, string, string][] = [];
+  filteredItems: [string, string, string, boolean][] = [];
 
   test: string = "";
 
-  yourTeam: [string, string, string][] = [];
+  yourTeam: [string, string, string, ][] = [];
 
   enemyTeam: any[] = [];
 
@@ -30,7 +32,7 @@ export class GenerateTeamComponent {
 
   searchQuery: string = '';
 
-  constructor(private service: ServiceService) {
+  constructor(private service: ServiceService, private router: Router) {
 
   }
 
@@ -41,8 +43,17 @@ export class GenerateTeamComponent {
 
   async getDataFromApi(key : any) {
     this.service.getMonsterList(key).subscribe((monsterList: [[string, string, string][], [string, string, string][]]) => {
-      this.monsterList = monsterList[0];
-      this.filteredItems = monsterList[0]
+      // this.monsterList = monsterList[0];
+      let storage : [string, string, string] [] = monsterList[0];
+      // // this.filteredItems = monsterList[0]
+      // this.filteredItems = monsterList.map((item: [string, string, string]) => {
+      //   return [...item, false] as [string, string, string, boolean];
+      // });
+      this.filteredItems = storage.map((item: [string, string, string]) => {
+        return [...item, false] as [string, string, string, boolean];
+      });
+      this.monsterList = this.filteredItems
+      
       this.enemyOptions = monsterList[1];
       this.generateEnemyTeam(this.enemyOptions);
       console.log(this.enemyOptions);
@@ -62,22 +73,65 @@ export class GenerateTeamComponent {
 
   }
 
-  record(value: [string, string, string]) {
-    const length : number = this.yourTeam.length
-    if (length < 3) {
-      this.yourTeam[length] = value
+  record(value2: [string, string, string, boolean]) {
+    const length: number = this.yourTeam.length;
+    const originalValue: [string, string, string] = [value2[0], value2[1], value2[2]]; // Store the original value array
+  
+    console.log(originalValue);
+  
+    if (this.yourTeam.some((item) => item[0] === originalValue[0] && item[1] === originalValue[1] && item[2] === originalValue[2])) {
+      // Check if the originalValue is already present in yourTeam array
+      this.yourTeam.splice(this.yourTeam.findIndex((item) => item[0] === originalValue[0] && item[1] === originalValue[1] && item[2] === originalValue[2]), 1);
       console.log(this.yourTeam);
+      value2[3] = !value2[3];
+      console.log(value2);
+    } else if (length < 3) {
+      this.yourTeam[length] = originalValue;
+      console.log(this.yourTeam);
+      value2[3] = !value2[3];
+      console.log(value2);
     } else {
       this.safety = true;
-    }   
-  }
-  removeMonster(value : [string, string, string]) {
-    let valueToBeRemoved : number = this.yourTeam.indexOf(value);
-    this.yourTeam.splice(valueToBeRemoved, 1);
-    if (this.safety == true) {
-      this.safety = false;
     }
+    // if (this.yourTeam.length < 1) {
+    //   this.ready = false;
+    // }
   }
+  
+
+  // record(value2: [string, string, string, boolean]) {
+  //   const length : number = this.yourTeam.length
+  //   let value : [string, string, string] = ["", "", ""]
+  //   value[0] = value2[0] 
+  //   value[1] = value2[1] 
+  //   value[2] = value2[2] 
+  //   console.log(value);
+  //   if(this.yourTeam.includes(value)) {
+  //     this.yourTeam.splice(this.yourTeam.indexOf(value))
+  //     console.log(this.yourTeam)
+
+  //   } else if (length < 3) {
+  //     this.yourTeam[length] = value
+  //     console.log(this.yourTeam);
+  //     value2[3] = !value2[3]
+  //     console.log(value2);
+  //   } 
+  //   else {
+  //     this.safety = true;
+  //   }   
+  // }
+  // removeMonster(value : [string, string, string]) {
+
+
+  //   let val : [string, string, string, boolean] = [value[0], value[1], value[2], true];
+  //   this.record(val);
+  //   this.filteredItems.findIndex(val);
+  //   // let valueToBeRemoved : number = this.yourTeam.indexOf(value);
+  //   // this.yourTeam.splice(valueToBeRemoved, 1);
+  //   // if (this.safety == true) {
+  //   //   this.safety = false;
+  //   // }
+  // }
 
   updateFilteredItems() {
     this.filteredItems = this.monsterList.filter(monster =>
@@ -85,17 +139,24 @@ export class GenerateTeamComponent {
     );
   }
 
-  generateRandomTeams() {
-  console.log("Hello");
-  }
+ 
 
   commitEnemyTeam(value : any) {
     sessionStorage.setItem("enemyTeam", JSON.stringify(value))
+    this.router.navigate((['/main']))
+    // this.checkIfReady();
   }
+
+  // checkIfReady() {
+  //   if (this.yourTeam.length > 1) {
+  //     this.ready = true;
+  //   }
+  // }
 
   matchmaking() {
    let value : number = Math.floor(Math.random() * 2);
     this.commitEnemyTeam(this.enemyTeam[value])
+    this.router.navigate((['/main']))
   }
 
   ngOnDestroy() {

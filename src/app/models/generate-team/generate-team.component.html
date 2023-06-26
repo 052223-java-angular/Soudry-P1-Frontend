@@ -1,42 +1,60 @@
-<input class="border-2" type="text" [(ngModel)]="searchQuery" placeholder="Search..." (input)="updateFilteredItems()"/>
-<div class="flex flex-wrap">
-    <div (click)="record(monstername)" *ngFor="let monstername of filteredItems" class="flex justify-center items-center border-2 border-blue-400 rounded-full p-5 m-5 h-20">
-        <button class="w-40">
-            <img class="h-10" [src]="'assets/transparent/' + monstername[2] + '.png'" alt="My Image">
-            {{monstername[0]}}
-        </button>
+<div class="flex justify-center m-2">
+    <div class="flex flex-col space-y-4 w-96">
+      <h1 class="text-center">Please Choose Your Monster</h1>
+      <input class="border-2" type="text" [(ngModel)]="searchQuery" placeholder="Search for a specific monster by name." (input)="updateFilteredItems()" />
+    </div>
+  </div>
+<div class="flex justify-center m-2">
+    <div>
+        
     </div>
     
-</div>
-
-
-<div *ngIf="yourTeam.length > 0 else noTeam">
-    <div *ngFor="let name of yourTeam">
-        <p>{{name[0]}}</p>
-        <button (click) = "removeMonster(name)" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full">Remove</button>
-
-    </div>
-    <div *ngIf="safety == true">
-        <p>Your team can have a maximum of 3 monsters. Please remove one to add another</p>
-    </div> 
-
-    <button [routerLink]="['/main']"  class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full" >Head Over to the next Route</button>
-</div>
-<ng-template #noTeam>
-    <p class="text-center">Your Team is empty so far</p>
-</ng-template>
-
-<!-- <div *ngIf="safety == true"> -->
-    <p>Your team can have a maximum of 3 monsters. Please remove one to add another</p>
- 
-<!-- </div>  -->
-<!-- <div  *ngIf="enemyOptions.length == 3"> -->
-    <h1> Choose your enemy Team</h1>
-    <div class="flex flex-wrap">
-        <div *ngFor="let name of enemyTeam">
-            <button (click) = "commitEnemyTeam(name)" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full">{{name[0][0]}}, {{name[1][0]}}, {{name[2][0]}}</button>
+    <div class="flex flex-wrap justify-center  rounded border-2 border-black w-1/2 h-64 overflow-auto">
+        <div [ngClass]="{'clicked-button': monstername[3]}" (click)="record(monstername)" *ngFor="let monstername of filteredItems" class="flex justify-center items-center border-2 border-black rounded-full p-5 m-5 h-30 w-70">
+            <button class="w-110">
+                <div class="flex flex-row">
+                    <img class="h-10 p-1" [src]="'assets/transparent/' + monstername[2] + '.png'" alt="My Image">
+                    {{monstername[0]}}
+                </div>
+            </button>
         </div>
+    </div>    
+</div>
+
+<div class="flex justify-center m-2">
+
+
+    <div class="flex flex-col space-y-4 ">
+        <h1> Your team can have a maximum of 3 Monsters. Please choose {{ 3 - yourTeam.length}} more.</h1>
+        <div *ngIf="yourTeam.length > 0">
+            <div class="flex flex-row justify-center">
+                <div *ngFor="let name of yourTeam">
+                    <p class="choice">{{name[0]}}</p>
+                </div>
+            </div>
+          
+            <div *ngIf="safety == true">
+                <p>Your team can have a maximum of 3 monsters. Please remove one to add another</p>
+            </div>
+
+        </div>
+       
+        <div *ngIf="yourTeam.length == 3">
+            <h1 class="text-center">  Now Choose your Opponent</h1>
+            <div class="flex flex-row justify-center">
+                <div *ngFor="let name of enemyTeam; let i = index">
+                    <button (click) = "commitEnemyTeam(name)" class="primary"> Team {{i + 1}}</button>
+                </div>
+                <button [routerLink]="['/main']"   (click)="matchmaking()"  class="primary">Random</button>
+            </div>
+        </div>
+        
+     <div *ngIf="ready">
+        <button [routerLink]="['/main']"  class="primary" >Head Over to the next Route</button>
+     </div>
+        
+       
+        
     </div>
 
-    <button [routerLink]="['/main']"   (click)="matchmaking()"  class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full">Pick a random team </button>
-<!-- </div> -->
+</div>

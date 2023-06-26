@@ -1,50 +1,53 @@
-<form [formGroup]="form" class="form-container">
-  <div *ngIf="preSubmit else SuccessfulSubmit">
-  <div class="form-field">
-    <label for="username" class="form-label">Username</label>
-    <input 
-    formControlName="username"
-    id="username" type="text" class="form-input" placeholder="Enter your username" formControlName="username">
-    <div *ngIf="f.username.touched && f.username.invalid" class="alert alert-danger">
-      <div *ngIf="f.username.errors?.['required']">Name is required.</div>
-      <div *ngIf="f.username.errors?.['minlength']">Name should be 3 character.</div>
+<div class="flex flex-row justify-center items-center h-screen">
+  <form [formGroup]="form" class="form-container">
+    <div *ngIf="preSubmit else SuccessfulSubmit">
+    <div class="form-field">
+      <label for="username" class="form-label">Username</label>
+      <input 
+      formControlName="username"
+      id="username" type="text" class="form-input" placeholder="Enter your username" formControlName="username">
+      <div *ngIf="f.username.touched && f.username.invalid" class="alert alert-danger">
+        <div *ngIf="f.username.errors?.['required']">Name is required.</div>
+        <div *ngIf="f.username.errors?.['minlength']">Name should be 8-20 character.</div>
+    </div>
+    </div>
+  
+    <div class="form-field">
+      <label for="password" class="form-label">Password</label>
+      <input 
+      formControlName="password"
+      id="password" type="password" class="form-input" placeholder="Enter your password" formControlName="password">
+    </div>
+  
+    <div class="form-field">
+      <label for="confirm-password" class="form-label">Confirm Password</label>
+      <input 
+      formControlName="confirm-password"
+      id="confirm-password" type="password" class="form-input" placeholder="Confirm your password" formControlName="confirmPassword">
+    </div>
+  
+    <div class="form-field">
+      <label for="email" class="form-label">Email</label>
+      <input 
+      formControlName="email"
+      id="email" type="email" class="form-input" placeholder="Enter your email (Optional)" formControlName="email">
+      <div *ngIf="f.email.errors?.['email']">This is not a valid email..</div>
+    </div>
+  
+  
+    <div *ngIf="failure">
+      <p> You have a {{errorMessage}}</p>
+     </div>
+  <div class="flex flex-col space-y-4 m-2">
+    <button (click)="onSubmit()" type="submit" class="primary">Submit</button>
+    <button type="button" [routerLink]="['/login']" class="secondary"  > Meant to Login? Click Here Instead</button>
   </div>
-  </div>
-
-  <div class="form-field">
-    <label for="password" class="form-label">Password</label>
-    <input 
-    formControlName="password"
-    id="password" type="password" class="form-input" placeholder="Enter your password" formControlName="password">
-  </div>
-
-  <div class="form-field">
-    <label for="confirm-password" class="form-label">Confirm Password</label>
-    <input 
-    formControlName="confirm-password"
-    id="confirm-password" type="password" class="form-input" placeholder="Confirm your password" formControlName="confirmPassword">
-  </div>
-
-  <div class="form-field">
-    <label for="email" class="form-label">Email</label>
-    <input 
-    formControlName="email"
-    id="email" type="email" class="form-input" placeholder="Enter your email" formControlName="email">
-  </div>
-
-
-  <div *ngIf="failure">
-    <p> You have a {{errorMessage}}</p>
-   </div>
-
-  <button (click)="onSubmit()" type="submit" class="form-button">Submit</button>
-  <button type="button" class="form-button" (click)="resetForm()">Reset</button>
-  <button type="button" [routerLink]="['/login']" class="form-button"  > Meant to Login? Click Here Instead</button>
-  </div>
-  <ng-template #SuccessfulSubmit>
-    <p>
-      You successfully Registered
-    </p>
-    <button type="button" [routerLink]="['/login']" class="form-button"  > Click Here to move to Login</button>
-  </ng-template>
-</form>
+    </div>
+    <ng-template #SuccessfulSubmit>
+      <p>
+        You successfully Registered
+      </p>
+      <button type="button" [routerLink]="['/login']" class="form-button"> Click Here to move to Login</button>
+    </ng-template>
+  </form>
+</div>
