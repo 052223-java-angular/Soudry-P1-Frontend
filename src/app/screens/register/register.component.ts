@@ -23,16 +23,10 @@ export class RegisterComponent {
   });
 
 
- 
-
+// for form control
   get f(){
     return this.form.controls;
 }
-
-
-  resetForm() {
-
-  }
 
   onSubmit() {
   let u : String | null =  this.form.controls.username.value
@@ -62,17 +56,4 @@ export class RegisterComponent {
 
       ) 
     }
-  }
-      // {
-      // next: (value : any) => {
-      //   sessionStorage.setItem("key", value.token);
-      // },
-      // error: error => {
-      //       let e = error.error.message;
-      //       console.log(e);
-      //       // this.errorMessage = e;
-      //       // this.failure = true;
-      //   }
-      // }
-    
-  }
+  }}

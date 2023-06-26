@@ -48,6 +48,3 @@ The fight.compononent.ts contains the majority of the logic for the application.
 ## Tech Stacks for the Front-End
 - **Angular** The Framework used to build the front end.
 - **S3-Bucket** Hosting the application online.
-
-## Backend
-

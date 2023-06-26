@@ -247,10 +247,10 @@ scrollToBottom(): void {
         this.currentBattleRecord.push(`${this.yourEnemyMonster.name} outspeeds ${this.yourCurrentMonster.name} and goes first.`);
         this.currentBattleRecord.push(`Turn ${this,this.counter}`)
           this.combatCalculation(null, false, true);
-          // this.checkHealth()
+       
       } else {
         this.currentBattleRecord.push(  `${this.yourCurrentMonster.name}  out speeds ${this.yourEnemyMonster.name}. Your monster makes the first move.`);
-        // this.currentBattleRecord.push(`Turn ${this,this.counter}`)
+      
       }
       this.safety = false;
     } else {
@@ -266,17 +266,12 @@ scrollToBottom(): void {
         this.currentBattleRecord.push(`Turn ${this,this.counter}`)
         this.counter++
       }
-
-
       if (this.determineIfHits(actions[1], true)) {
       let damage : number = this.calculateDamage(actions[2])
       this.addToBattleRecord(damage, true)
       } else {
         this.addToBattleRecord(null, true)
       }
-     
-     
-     
     }
    if (this.enemyMonsterHealth > 0) {
       let attackChosen: number = this.getRandomInt( this.enemyActions.length - 1);
@@ -548,14 +543,8 @@ if (match)
       this.t2.splice(number, 1);
     }
 
-    // remove the monster who died from the set up.
-
-    // persist Monster
-
     this. You = "Your Monster";
     this. Enemy = "Your Opponent";
-
-    //  return to front
 
     if (value) {
       this.router.navigateByUrl(`/landing`)
@@ -567,9 +556,6 @@ if (match)
     this.counter = 1;
    
   }
-
-
-
 
   async grabMonsterDataByName(team1: [string, string, string][], team2: string[], jwt: string) {
     this.service.getTeamData(team1, team2, jwt).subscribe((value : any) => {

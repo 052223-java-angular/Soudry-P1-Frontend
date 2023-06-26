@@ -12,30 +12,18 @@ import { Login } from '../interfaces/login';
 export class ServiceService {
 
   private url = environment.backendUrl;
-  private url2 = environment.backendUrl2;
-
+ 
   constructor(private http: HttpClient) { }
-
-
 
   login(body: Login) {
     return this.http.post(`${this.url}auth/login`, body);
-    
- 
   }
   
-
   register(body: RegistrationObject) {
    return this.http.post(`${this.url}auth/register`, body);
-    // .subscribe(
-    //   (response: any) => {
-    //     console.log(response.status);
-    //   }
-    // )
   }
 
   getMonsterList(key : any): Observable<[[string, string, string][], [string, string, string][]]> {
-  // getMonsterList(key : any): Observable<[string, string, string][]> {
     const headers = {
       "auth-token": key
     };
@@ -45,15 +33,12 @@ export class ServiceService {
         for (let i = 0; i < value.results.length; i++) {
           monsterList[i] = [value.results[i].name, value.results[i].index,  value.results[i].monsterType];
         }
-        // monsterList.length = 42;
-
-
+    
         const firstArray: [string, string, string][] = monsterList.slice(0, 41);
         // Create an array of the next 42 elements
         const secondArray: [string, string, string][] = monsterList.slice(42, 51);
 
         return [firstArray, secondArray];
-        // return monsterList;
       })
     );
   }
